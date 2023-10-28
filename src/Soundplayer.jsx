@@ -17,6 +17,7 @@ function AudioPlayer() {
   const [selectedAudio, setSelectedAudio] = useState(null);
   const [secondBetween, setSecondBetween] = useState(null);
   const [amountOfSounds, SetAmountOfSounds] = useState(null)
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const [fileUrls, setFileUrls] = useState([])
   const [fileUpload, setFileUpload] = useState(null)
@@ -87,24 +88,71 @@ function AudioPlayer() {
       playRandomAudio()
       console.log(amountOfSounds)
       console.log(count)
+      setButtonDisabled(true);
+
       count++;
       if (count > amountOfSounds) {
         clearInterval(interval);
+        setButtonDisabled(false);
+
       }
     }, secondBetween * 1000);
   }
 
 
+  function calculateTime(secondsBetween, amountOfSounds) {
+    const totalSeconds = secondsBetween * amountOfSounds;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const remainingSeconds = totalSeconds % 60;
+    return `${hours} hours ${minutes} minutes and ${remainingSeconds} seconds`;
+  }
 
   return (
-    <div className="full-screen dark-mode">
-      <div class="animation-area">
+    <div>
+
+
+      <div className="Wrapper">
+
         <div className="content">
           <h1>Random Audio Player</h1>
-          <button onClick={playRandomAudio}>Play Random Sound</button>
-          <button onClick={RepeatSounds}>Play Random Sound infinity</button>
-          <input type="number" placeholder="Seconds between each Sound" onChange={(e) => setSecondBetween(e.target.value)} value={secondBetween} />
-          <input type="number" placeholder="Amount of Sounds in total to be played" onChange={(e) => SetAmountOfSounds(e.target.value)} value={amountOfSounds} />
+          <button onClick={playRandomAudio} className='button'>Play Random Sound</button>
+          <br />
+
+          <input
+            type="number"
+            placeholder="Seconds between each Sound"
+            onChange={(e) => setSecondBetween(e.target.value)}
+            value={secondBetween}
+          />
+
+          <input
+            type="number"
+            placeholder="Amount of Sounds in total to be played"
+            onChange={(e) => SetAmountOfSounds(e.target.value)}
+            value={amountOfSounds}
+          />
+          {secondBetween && (
+            <p style={{ color: 'white' }}>
+              A sound will be played every {secondBetween} seconds.
+            </p>
+          )}
+          {amountOfSounds && (
+            <p style={{ color: 'white' }}>
+              {amountOfSounds === '1'
+                ? 'A total of 1 sound will be played.'
+                : `A total of ${amountOfSounds} sounds will be played.`
+              }
+            </p>
+          )}
+          {secondBetween && amountOfSounds && (
+            <p style={{ color: 'white' }}>
+              This will take {calculateTime(secondBetween, amountOfSounds)}.
+            </p>
+          )}
+          <button onClick={RepeatSounds} className='button' disabled={false}>
+            Play Random Sound infinity
+          </button>
           <input
             type="file"
             id="file-input"
@@ -116,7 +164,7 @@ function AudioPlayer() {
           />
 
           <label className="custom-file-input" htmlFor="file-input">
-            Choose Image
+            Choose Soundfile
           </label>
           {fileUpload && (
             <button className="upload-button" onClick={uploadFile}>
@@ -124,6 +172,8 @@ function AudioPlayer() {
             </button>
           )}
         </div>
+      </div>
+      <div class="animation-area">
         <ul class="box-area">
           <li></li>
           <li></li>
