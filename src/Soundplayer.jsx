@@ -158,8 +158,7 @@ function AudioPlayer() {
             id="file-input"
             accept=".mp3"
             onChange={(event) => {
-              const selectedFile = event.target.files[0];
-              setFileUpload(selectedFile);
+              setFileUpload(event.target.files[0]);
             }}
           />
 

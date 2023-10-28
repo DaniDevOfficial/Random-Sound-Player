@@ -8,7 +8,7 @@
 .content {
     margin-top: 50px;
     display: flex;
-z-index: 1;
+    z-index: 1;
     flex-direction: column;
     align-items: center;
     position: absolute;
@@ -23,6 +23,36 @@ button {
     padding: 10px;
 }
 
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-input {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #374bcd;
+    color: white;
+    border: none;
+    cursor: pointer;
+
+}
+
+.custom-file-input:hover {
+    background-color: #202d57;
+}
+
+.upload-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.upload-icon {
+    width: 20px;
+    height: 20px;
+    color: #374bcd;
+}
 
 .button {
     background-image: linear-gradient(92.88deg, #223b6e 9.16%, #2c2282 43.89%, #301e91 64.72%);
