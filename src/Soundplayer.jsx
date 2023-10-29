@@ -10,6 +10,8 @@ import { storage } from './firebase'
 import { v4 } from 'uuid'
 import { FiUpload } from 'react-icons/fi';
 import "./Style.css"
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AudioPlayer() {
   const [audioFiles, setAudioFiles] = useState([]);
@@ -22,21 +24,45 @@ function AudioPlayer() {
   const [fileUrls, setFileUrls] = useState([])
   const [fileUpload, setFileUpload] = useState(null)
 
-  const fileListRef = ref(storage, 'Sounds/')
+  const fileListRef = ref(storage, 'Sounds/MySounds')
   const UploadsListRef = ref(storage, 'Sounds/Uploaded')
 
 
   const allAudio = []
   const uploadFile = () => {
-    if (fileUpload == null) return
-    const fileRef = ref(storage, `Sounds/Uploaded/${fileUpload.name}`)
-    uploadBytes(fileRef, fileUpload).then((snapshot) => {
-      getDownloadURL(snapshot.ref).then((url) => {
-        setFileUrls((prev) => [...prev, url])
+    if (fileUpload == null) return;
+
+    if (fileUpload.size > 500 * 1024) {
+      toast.error("File size should be no larger than 500 KB", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    const fileRef = ref(storage, `Sounds/Uploaded/${fileUpload.name}`);
+    uploadBytes(fileRef, fileUpload)
+      .then((snapshot) => {
+        getDownloadURL(snapshot.ref)
+          .then((url) => {
+            setFileUrls((prev) => [...prev, url]);
+            toast.success("File uploaded successfully. Download link in the console", {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 5000,
+            });
+            console.log("Download Link: " + url)
+            setFileUpload(null);
+          })
+          .catch((error) => {
+            console.error("Error generating download URL: ", error);
+            toast.error("An error occurred while processing the file.");
+          });
       })
-      setFileUpload(null)
-    })
-  }
+      .catch((error) => {
+        console.error("Error uploading file: ", error);
+        toast.error("An error occurred while uploading the file.");
+      });
+  };
 
 
   const hasFetchedImages = useRef(false);
@@ -85,6 +111,13 @@ function AudioPlayer() {
   function RepeatSounds() {
     let count = 1;
     const interval = setInterval(function () {
+      if(secondBetween > 3){
+        toast.warning("Audio incoming", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        }); 
+      }
+   
       playRandomAudio()
       console.log(amountOfSounds)
       console.log(count)
@@ -121,6 +154,7 @@ function AudioPlayer() {
 
           <input
             type="number"
+            className='NumberInput'
             placeholder="Seconds between each Sound"
             onChange={(e) => setSecondBetween(e.target.value)}
             value={secondBetween}
@@ -128,6 +162,7 @@ function AudioPlayer() {
 
           <input
             type="number"
+            className='NumberInput'
             placeholder="Amount of Sounds in total to be played"
             onChange={(e) => SetAmountOfSounds(e.target.value)}
             value={amountOfSounds}
@@ -158,9 +193,20 @@ function AudioPlayer() {
             id="file-input"
             accept=".mp3"
             onChange={(event) => {
-              setFileUpload(event.target.files[0]);
+              const file = event.target.files[0];
+
+              if (file && file.size <= 200 * 1024) {
+                setFileUpload(file);
+              } else {
+                toast.error("File size should be no larger than 200 KB", {
+                  position: toast.POSITION.TOP_RIGHT,
+                  autoClose: 5000, // Auto close the toast after 5 seconds (adjust as needed)
+                });
+                event.target.value = null;
+              }
             }}
           />
+
 
           <label className="custom-file-input" htmlFor="file-input">
             Choose Soundfile

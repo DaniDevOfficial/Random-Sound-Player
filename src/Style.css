@@ -18,7 +18,10 @@
 }
 
 .banner-text {}
-
+.NumberInput{
+    padding: 10px;
+    width: 260px;
+}
 button {
     padding: 10px;
 }
